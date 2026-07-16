@@ -21,31 +21,26 @@ elements.platform_player = {
 
     tick: function(pixel) {
 
-        // Check if there is something below the pixel
-        var below = pixel.y + 1;
+        // Check block below
+        if (pixel.y + 1 < height) {
 
-        if (below < height) {
-            var belowPixel = pixelMap[pixel.x][below];
+            var below = pixelMap[pixel.x][pixel.y + 1];
 
-            // Ground detected
-            if (belowPixel && belowPixel.element !== "platform_player") {
+            // Something solid is below = can jump
+            if (below && elements[below.element].state === "solid") {
 
-                // Jump only with W
                 if (platformerKeys["w"]) {
-                    tryMove(pixel, pixel.x, pixel.y - 5);
+
+                    // Move upward like a jump
+                    if (pixel.y - 3 >= 0) {
+                        tryMove(
+                            pixel,
+                            pixel.x,
+                            pixel.y - 3
+                        );
+                    }
                 }
             }
         }
-    }
-};
-
-
-// Spawner
-elements.platform_spawner = {
-    color: "#ffff00",
-    category: "tools",
-
-    onSelect: function() {
-        createPixel("platform_player", mousePos.x, mousePos.y);
     }
 };
