@@ -1,18 +1,15 @@
-// Sandboxels Jump Powder
+// Sandboxels Controllable Jump Powder
+// A/D = move
 // W = jump
 
-let jumpPressed = false;
+let platformerKeys = {};
 
 document.addEventListener("keydown", function(e) {
-    if (e.key.toLowerCase() === "w") {
-        jumpPressed = true;
-    }
+    platformerKeys[e.key.toLowerCase()] = true;
 });
 
 document.addEventListener("keyup", function(e) {
-    if (e.key.toLowerCase() === "w") {
-        jumpPressed = false;
-    }
+    platformerKeys[e.key.toLowerCase()] = false;
 });
 
 
@@ -25,29 +22,48 @@ elements.jump_powder = {
 
     tick: function(pixel) {
 
-        // Check if something is below
-        let canJump = false;
-
-        if (pixel.y + 1 >= height) {
-            // Bottom border counts as ground
-            canJump = true;
-        } 
-        else {
-            let below = pixelMap[pixel.x][pixel.y + 1];
-
-            if (below) {
-                // Anything below counts
-                canJump = true;
+        // Move left
+        if (platformerKeys["a"]) {
+            if (isEmpty(pixel.x - 1, pixel.y)) {
+                movePixel(pixel, pixel.x - 1, pixel.y);
             }
         }
 
+        // Move right
+        if (platformerKeys["d"]) {
+            if (isEmpty(pixel.x + 1, pixel.y)) {
+                movePixel(pixel, pixel.x + 1, pixel.y);
+            }
+        }
+
+
         // Jump
-        if (canJump && jumpPressed) {
+        if (platformerKeys["w"]) {
 
-            let jumpY = pixel.y - 10;
+            let canJump = false;
 
-            if (jumpY >= 0 && isEmpty(pixel.x, jumpY)) {
-                movePixel(pixel, pixel.x, jumpY);
+            // Bottom border counts as ground
+            if (pixel.y + 1 >= height) {
+                canJump = true;
+            }
+            else {
+                let below = pixelMap[pixel.x][pixel.y + 1];
+
+                // Anything below allows jumping
+                if (below) {
+                    canJump = true;
+                }
+            }
+
+
+            if (canJump) {
+
+                let jumpY = pixel.y - 10;
+
+                // Space above must be empty
+                if (jumpY >= 0 && isEmpty(pixel.x, jumpY)) {
+                    movePixel(pixel, pixel.x, jumpY);
+                }
             }
         }
     }
