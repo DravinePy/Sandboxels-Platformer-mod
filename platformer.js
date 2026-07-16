@@ -1,6 +1,5 @@
 // Sandboxels Platformer Mod
-// A/D = move
-// W/Space = jump
+// W = jump
 
 var platformerKeys = {};
 
@@ -12,59 +11,36 @@ document.addEventListener("keyup", function(e) {
     platformerKeys[e.key.toLowerCase()] = false;
 });
 
+
 elements.platform_player = {
     color: "#00ffff",
-    category: "other",
-    state: "solid",
-    behavior: behaviors.WALL,
+    category: "powders",
+    state: "powder",
+    behavior: behaviors.POWDER,
     density: 500,
 
     tick: function(pixel) {
 
-        // Create velocity values
-        if (pixel.vx === undefined) pixel.vx = 0;
-        if (pixel.vy === undefined) pixel.vy = 0;
+        // Check if there is something below the pixel
+        var below = pixel.y + 1;
 
-        // Movement
-        if (platformerKeys["a"]) {
-            pixel.vx = -2;
-        }
-        else if (platformerKeys["d"]) {
-            pixel.vx = 2;
-        }
-        else {
-            pixel.vx *= 0.8;
-        }
+        if (below < height) {
+            var belowPixel = pixelMap[pixel.x][below];
 
-        // Gravity
-        pixel.vy += 0.25;
+            // Ground detected
+            if (belowPixel && belowPixel.element !== "platform_player") {
 
-        // Jump
-        if ((platformerKeys["w"] || platformerKeys[" "]) && pixel.grounded) {
-            pixel.vy = -5;
-            pixel.grounded = false;
-        }
-
-        // Horizontal movement
-        if (!tryMove(pixel, pixel.x + pixel.vx, pixel.y)) {
-            pixel.vx = 0;
-        }
-
-        // Vertical movement
-        if (!tryMove(pixel, pixel.x, pixel.y + pixel.vy)) {
-            if (pixel.vy > 0) {
-                pixel.grounded = true;
+                // Jump only with W
+                if (platformerKeys["w"]) {
+                    tryMove(pixel, pixel.x, pixel.y - 5);
+                }
             }
-            pixel.vy = 0;
-        }
-        else {
-            pixel.grounded = false;
         }
     }
 };
 
 
-// Spawn helper
+// Spawner
 elements.platform_spawner = {
     color: "#ffff00",
     category: "tools",
