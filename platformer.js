@@ -1,55 +1,53 @@
-// Sandboxels Controllable Powder
-// A/D = move
+// Sandboxels Jump Powder
 // W = jump
 
-let keys = {};
+let jumpPressed = false;
 
 document.addEventListener("keydown", function(e) {
-    keys[e.key.toLowerCase()] = true;
+    if (e.key.toLowerCase() === "w") {
+        jumpPressed = true;
+    }
 });
 
 document.addEventListener("keyup", function(e) {
-    keys[e.key.toLowerCase()] = false;
+    if (e.key.toLowerCase() === "w") {
+        jumpPressed = false;
+    }
 });
 
 
-elements.controllable_powder = {
+elements.jump_powder = {
     color: "#ffffff",
-    category: "powders",
+    category: "special",
     state: "powder",
     behavior: behaviors.POWDER,
     density: 1000,
 
     tick: function(pixel) {
 
-        // Move left
-        if (keys["a"]) {
-            if (isEmpty(pixel.x - 1, pixel.y)) {
-                movePixel(pixel, pixel.x - 1, pixel.y);
-            }
-        }
+        // Check if something is below
+        let canJump = false;
 
-        // Move right
-        if (keys["d"]) {
-            if (isEmpty(pixel.x + 1, pixel.y)) {
-                movePixel(pixel, pixel.x + 1, pixel.y);
+        if (pixel.y + 1 >= height) {
+            // Bottom border counts as ground
+            canJump = true;
+        } 
+        else {
+            let below = pixelMap[pixel.x][pixel.y + 1];
+
+            if (below) {
+                // Anything below counts
+                canJump = true;
             }
         }
 
         // Jump
-        if (keys["w"]) {
+        if (canJump && jumpPressed) {
 
-            let below = pixelMap[pixel.x][pixel.y + 1];
+            let jumpY = pixel.y - 10;
 
-            // Check if standing on a solid pixel
-            if (below && elements[below.element].state === "solid") {
-
-                let jumpTo = pixel.y - 4;
-
-                // Check the destination is empty
-                if (jumpTo >= 0 && isEmpty(pixel.x, jumpTo)) {
-                    movePixel(pixel, pixel.x, jumpTo);
-                }
+            if (jumpY >= 0 && isEmpty(pixel.x, jumpY)) {
+                movePixel(pixel, pixel.x, jumpY);
             }
         }
     }
