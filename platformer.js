@@ -1,44 +1,42 @@
-// Sandboxels Platformer Mod
+// Simple Sandboxels Jump Powder
 // W = jump
 
-var platformerKeys = {};
+let jumpPressed = false;
 
 document.addEventListener("keydown", function(e) {
-    platformerKeys[e.key.toLowerCase()] = true;
+    if (e.key.toLowerCase() === "w") {
+        jumpPressed = true;
+    }
 });
 
 document.addEventListener("keyup", function(e) {
-    platformerKeys[e.key.toLowerCase()] = false;
+    if (e.key.toLowerCase() === "w") {
+        jumpPressed = false;
+    }
 });
 
 
-elements.platform_player = {
-    color: "#00ffff",
+elements.jump_powder = {
+    color: "#ffffff",
     category: "powders",
     state: "powder",
     behavior: behaviors.POWDER,
-    density: 500,
+    density: 1000,
 
     tick: function(pixel) {
 
-        // Check block below
-        if (pixel.y + 1 < height) {
+        // Check if something solid is below
+        let below = pixelMap[pixel.x][pixel.y + 1];
 
-            var below = pixelMap[pixel.x][pixel.y + 1];
+        if (below && elements[below.element].state === "solid") {
 
-            // Something solid is below = can jump
-            if (below && elements[below.element].state === "solid") {
+            // Jump when W is pressed
+            if (jumpPressed) {
 
-                if (platformerKeys["w"]) {
+                let jumpY = pixel.y - 5;
 
-                    // Move upward like a jump
-                    if (pixel.y - 3 >= 0) {
-                        tryMove(
-                            pixel,
-                            pixel.x,
-                            pixel.y - 3
-                        );
-                    }
+                if (jumpY >= 0 && isEmpty(pixel.x, jumpY)) {
+                    movePixel(pixel, pixel.x, jumpY);
                 }
             }
         }
